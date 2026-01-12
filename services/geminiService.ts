@@ -2,15 +2,13 @@
 import { GoogleGenAI } from "@google/genai";
 
 export class HospitalAIService {
-  private ai: GoogleGenAI;
-
-  constructor() {
-    this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  }
-
+  // Fix: Removed global ai instance to ensure fresh initialization with correct apiKey per call
+  
   async queryDashboard(prompt: string, contextSummary: string) {
     try {
-      const response = await this.ai.models.generateContent({
+      // Fix: Initializing GoogleGenAI inside the method to ensure it uses the latest apiKey
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `
 Bạn là một AI chuyên gia quản trị bệnh viện và phân tích tài chính y tế tại Việt Nam. 
@@ -28,6 +26,7 @@ Câu hỏi: ${prompt}
         },
       });
 
+      // Fix: response.text is a property, not a function
       return response.text;
     } catch (error) {
       console.error("AI Query Error:", error);
@@ -37,7 +36,9 @@ Câu hỏi: ${prompt}
 
   async getDiagnosticSuggestions(symptoms: string) {
     try {
-      const response = await this.ai.models.generateContent({
+      // Fix: Initializing GoogleGenAI inside the method to ensure it uses the latest apiKey
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const response = await ai.models.generateContent({
         model: 'gemini-3-pro-preview',
         contents: `
 Bạn là một Trợ lý Chẩn đoán Y khoa Thông minh (H-AI Diagnostic Support). 
@@ -59,6 +60,7 @@ Hãy trả lời ngắn gọn, súc tích và đúng thuật ngữ y khoa.
         },
       });
 
+      // Fix: response.text is a property, not a function
       return response.text;
     } catch (error) {
       console.error("Diagnostic AI Error:", error);
